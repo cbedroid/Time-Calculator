@@ -1,3 +1,14 @@
+# Python Scientific Computing with Python Projects 
+
+Time Calculator assignment for [__FreeCodeCamp__][freecodecamp-url]. The section below explains all of the steps required to complete this assignment.
+
+
+Full Documentation: [**Documentation**][documentation-link]
+
+**Live Demo**: [**REPL**][repl-link] 
+
+
+
 ### Assignment
 
 Write a function named `add_time` that takes in two required parameters and one optional parameter:
@@ -45,3 +56,7 @@ The unit tests for this project are in `test_module.py`. We imported the tests f
 ### Submitting
 
 Copy your project's URL and submit it to freeCodeCamp.
+
+[feecodecamp-url]: https://www.freecodecamp.org/
+[documentation-link]: https://www.freecodecamp.org/learn/scientific-computing-with-python/scientific-computing-with-python-projects/time-calculator
+[repl-link]: https://repl.it/@cbedroid/boilerplate-time-calculator#time_calculator.py
