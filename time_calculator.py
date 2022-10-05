@@ -1,89 +1,97 @@
-
-
 def get_days_later(days):
-  """ Helper function to format days later"""
-  if days == 1:
-      return "(next day)"
-  elif days > 1:
-      return f"({days} days later)"
-  return ""
+    """ Format the days later into string"""
+    if days == 1:
+        return "(next day)"
+    elif days > 1:
+        return f"({days} days later)"
+    return ""
 
 
-def add_time(start, duration, day=False):
-    week_days =  [
-        'monday', 'tuesday',
-        'wednesday', 'thursday',
-        'friday', 'saturday',
-        'sunday'
-      ]
+def add_time(start_time, end_time, day=False):
+    
+    # constants
+    HOURS_IN_ONE_DAY = 24
+    HOURS_IN_HALF_DAY = 12
+    WEEK_DAYS = [
+        "monday",
+        "tuesday",
+        "wednesday",
+        "thursday",
+        "friday",
+        "saturday",
+        "sunday",
+    ]
+
 
     days_later = 0
-    one_day = 24
-    half_day = 12
-    hours, mins = start.split(":")
+    hours, mins = start_time.split(":")
     mins, period = mins.split(" ")
-    dh, dm = duration.split(":")
+    end_time_hrs, end_time_mins = end_time.split(":")
 
-    #CLEAN DATA
-    hours = int(hours)  # start hour
-    mins = int(mins)  # start min
-    dh = int(dh)  # duration hours
-    dm = int(dm)  # duration mins
-    period = period.strip().lower()  # AM or PM"
+    # Clean time data
+    hours = int(hours)  # start time  hours
+    mins = int(mins)  # start time  minutes
+    end_time_hrs = int(end_time_hrs)  # end time hours
+    end_time_mins = int(end_time_mins)  # end time minutes
+    period = period.strip().lower()  # AM or PM
 
-    # GET TOTAL HOURS AND MINUTES
-    total_mins = mins + dm
-    total_hours = hours + dh
+    # Combine start time and end time hrs and minutes
+    total_mins = mins + end_time_mins
+    total_hours = hours + end_time_hrs
 
-    #SHIFT MINUTES TO HOUR IF ITS OVER 60
+    # Shift minutes to hour if minutes is over 60
     if total_mins >= 60:
         total_hours += int(total_mins / 60)
         total_mins = int(total_mins % 60)
 
-    if dh or dm:  # only run if duration has hr or mins
-        if period == "pm" and total_hours > half_day:
-            #^- night time changing to another day
-            #^- only run on PM , since AM to AM is 24hrs
-            #   so there is no need to change it
-            if total_hours % one_day >= 1.0:
-                days_later += 1  # over 24hr then add the days
+    if end_time_hrs or end_time_mins:
+        # If `PM`, flip period to `AM` if hours over 12
+        if period == "pm" and total_hours > HOURS_IN_HALF_DAY:
+            # if hours over 24hr then add  days
+            if total_hours % HOURS_IN_ONE_DAY >= 1.0:
+                days_later += 1
 
-        if total_hours >= half_day:
-            hours_left = total_hours / one_day
+        if total_hours >= HOURS_IN_HALF_DAY:
+            hours_left = total_hours / HOURS_IN_ONE_DAY
             days_later += int(hours_left)
-            #EX: 54hr / 24 = 2.25 days <-- append 2 days
-            #EX: 36hr / 24 = 1.5 days <-- append 1 days
 
-        tth = total_hours
+            # e.g: 54hr / 24 = 2.25 days <-- append 2 days
+            # e.g.: 36hr / 24 = 1.5 days <-- append 1 days
+
+        temp_hours = total_hours
         while True:
-            # constantly reverse period untils
+            # Constantly reverse period until
             # total_hours are less than half a day
-            if tth < half_day:
+            if temp_hours < HOURS_IN_HALF_DAY:
                 break
-            if tth >= half_day:
-                if period == "am":
-                    period = "pm"
-                elif period == "pm":
-                    period = "am"
-                tth -= half_day
+            if period == "am":
+                period = "pm"
+            else:
+                period = "am"
+            temp_hours -= HOURS_IN_HALF_DAY
 
-    # RE-ADJUST HRS AND MIN
-    # Above.. we already taken care of the days
-    # so now we need to remove the days from the hrs and keep whats left.
-    # EX: hr % oneday -->  55hr % 24 = 7 remaining --> hr=7
-    remaining_hours = int(total_hours % half_day) or hours + 1
+    """
+    Recalculate Hours and Minutes 
+    
+     Since we have already taken care of the days,
+     we now need to calculate the hours remaining.
+     This can be done by subtracting the remaining days(in hours) 
+     from the total hours remaining 
+        
+        e.g. hrs % oneday -->  55hrs % 24 = 7 ---> 7 hours remaining
+    """
+    remaining_hours = int(total_hours % HOURS_IN_HALF_DAY) or hours + 1
     remaining_mins = int(total_mins % 60)
 
-    # Format the results 
-    results = f'{remaining_hours}:{remaining_mins:02} {period.upper()}'
-    if day: # add day of the week
+    # Format the results
+    results = f"{remaining_hours}:{remaining_mins:02} {period.upper()}"
+    if day:  # add the day of the week
         day = day.strip().lower()
-        selected_day = int((week_days.index(day) + days_later) % 7)
-        current_day = week_days[selected_day]
-        results += f', {current_day.title()} {get_days_later(days_later)}'
+        selected_day = int((WEEK_DAYS.index(day) + days_later) % 7)
+        current_day = WEEK_DAYS[selected_day]
+        results += f", {current_day.title()} {get_days_later(days_later)}"
 
-    else: # add days later
+    else:  # add the days later
         results = " ".join((results, get_days_later(days_later)))
 
     return results.strip()
-
